@@ -1,4 +1,5 @@
 require "net/http"
+require 'socket'
 
 output = `speedtest-cli --simple`
 # output = "Ping: 246.466 ms\nDownload: 2.69 Mbit/s\nUpload: 1.03 Mbit/s\n"
@@ -7,13 +8,22 @@ download = output[(output.index('Download: ') + 10)..(output.index('Mbit')-2)]
 upload = output[(output.index('Upload: ') + 8)..(output.length - 9)]
 
 # OSX vs. Linux
-# ssid = (`iwgetid -r`).strip
-ssid = (`/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport -I | awk '/ SSID/ {print substr($0, index($0, $2))}'`).strip
+
+begin
+  ssid = (`iwgetid -r`).strip
+  # iceberg!
+rescue
+  ssid = (`/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport -I | awk '/ SSID/ {print substr($0, index($0, $2))}'`).strip
+  # lifeboats
+end
+
+p ssid
+hostname = Socket.gethostname
 
 uri = URI('http://speedy-cnx.herokuapp.com/speedtests')
 
 req = Net::HTTP::Post.new(uri)
-req.set_form_data({ping: ping, upload: upload, download: download, ssid: ssid})
+req.set_form_data({ping: ping, upload: upload, download: download, ssid: ssid, hostname: hostname})
 
 res = Net::HTTP.start(uri.hostname, uri.port) do |http|
   http.request(req)
