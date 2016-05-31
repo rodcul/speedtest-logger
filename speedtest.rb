@@ -27,7 +27,8 @@ logger.debug('Getting hostname')
 hostname = Socket.gethostname
 logger.debug(hostname)
 logger.debug('Posting to API')
-uri = URI('http://speedy-cnx.herokuapp.com/speedtests')
+# uri = URI('http://speedy-cnx.herokuapp.com/speedtests')
+uri = URI('http://wifinder-web.herokuapp.com/locations/1/speedtests')
 
 req = Net::HTTP::Post.new(uri)
 req.set_form_data({ping: ping, upload: upload, download: download, ssid: ssid, hostname: hostname})
